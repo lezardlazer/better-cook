@@ -12,6 +12,7 @@ enum SourceType {
   youtube
   tiktok
   instagram
+  manual
 }
 
 enum TagCategory {

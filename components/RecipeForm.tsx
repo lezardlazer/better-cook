@@ -31,6 +31,8 @@ export function RecipeForm({ initial }: { initial: RecipeFormData }) {
   const [ingredients, setIngredients] = useState(initial.ingredients.join("\n"));
   const [steps, setSteps] = useState(initial.steps.join("\n"));
   const [tags, setTags] = useState<string[]>(initial.suggestedTags);
+  const [imageUrl, setImageUrl] = useState(initial.imageUrl);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,6 +40,26 @@ export function RecipeForm({ initial }: { initial: RecipeFormData }) {
     setTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
     );
+  }
+
+  async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload-image", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Échec de l'envoi de l'image.");
+      setImageUrl(data.imageUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Échec de l'envoi de l'image.");
+    } finally {
+      setUploadingImage(false);
+    }
   }
 
   async function handleSave() {
@@ -51,7 +73,7 @@ export function RecipeForm({ initial }: { initial: RecipeFormData }) {
           title,
           sourceUrl: initial.sourceUrl,
           sourceType: initial.sourceType,
-          imageUrl: initial.imageUrl,
+          imageUrl,
           prepTimeMinutes: prepTime === "" ? null : Number(prepTime),
           cookTimeMinutes: cookTime === "" ? null : Number(cookTime),
           servings: servings === "" ? null : Number(servings),
@@ -75,6 +97,34 @@ export function RecipeForm({ initial }: { initial: RecipeFormData }) {
       <div>
         <label className={labelClass}>Titre</label>
         <input value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} />
+      </div>
+
+      <div>
+        <label className={labelClass}>Image</label>
+        <div className="flex items-center gap-3">
+          <div
+            className={`flex h-20 w-20 flex-none items-center justify-center overflow-hidden rounded-2xl bg-white text-2xl ${BRUTAL_BORDER}`}
+          >
+            {imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              "🍽️"
+            )}
+          </div>
+          <label
+            className={`cursor-pointer bg-white px-3 py-2 text-sm ${BRUTAL_PILL} ${uploadingImage ? "opacity-50" : ""}`}
+          >
+            {uploadingImage ? "Envoi…" : imageUrl ? "Changer l'image" : "Ajouter une image"}
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              onChange={handleImageChange}
+              disabled={uploadingImage}
+              className="hidden"
+            />
+          </label>
+        </div>
       </div>
 
       <div className="flex gap-3">
@@ -149,7 +199,7 @@ export function RecipeForm({ initial }: { initial: RecipeFormData }) {
 
       <button
         onClick={handleSave}
-        disabled={saving || !title.trim()}
+        disabled={saving || uploadingImage || !title.trim()}
         className={`rounded-full bg-[#FFD53D] px-4 py-3 font-bold text-[#14110F] disabled:opacity-50 ${BRUTAL_BORDER} ${BRUTAL_SHADOW} ${BRUTAL_PRESS}`}
       >
         {saving ? "Enregistrement…" : "Enregistrer la recette"}

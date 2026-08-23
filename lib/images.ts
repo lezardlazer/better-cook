@@ -12,27 +12,34 @@ const EXT_BY_CONTENT_TYPE: Record<string, string> = {
   "image/gif": "gif",
 };
 
+export async function saveImageBuffer(
+  buffer: Buffer,
+  contentType: string,
+): Promise<string> {
+  const ext = EXT_BY_CONTENT_TYPE[contentType] ?? "jpg";
+  const filename = `${crypto.randomUUID()}.${ext}`;
+
+  if (process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN) {
+    const blob = await put(`recipe-images/${filename}`, buffer, {
+      access: "public",
+      contentType: contentType || "image/jpeg",
+    });
+    return blob.url;
+  }
+
+  await mkdir(STORAGE_DIR, { recursive: true });
+  await writeFile(path.join(STORAGE_DIR, filename), buffer);
+  return `/recipe-images/${filename}`;
+}
+
 export async function downloadImage(url: string): Promise<string | undefined> {
   try {
     const response = await fetch(url, { signal: AbortSignal.timeout(10_000) });
     if (!response.ok) return undefined;
 
     const contentType = response.headers.get("content-type")?.split(";")[0].trim() ?? "";
-    const ext = EXT_BY_CONTENT_TYPE[contentType] ?? "jpg";
-    const filename = `${crypto.randomUUID()}.${ext}`;
     const buffer = Buffer.from(await response.arrayBuffer());
-
-    if (process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN) {
-      const blob = await put(`recipe-images/${filename}`, buffer, {
-        access: "public",
-        contentType: contentType || "image/jpeg",
-      });
-      return blob.url;
-    }
-
-    await mkdir(STORAGE_DIR, { recursive: true });
-    await writeFile(path.join(STORAGE_DIR, filename), buffer);
-    return `/recipe-images/${filename}`;
+    return await saveImageBuffer(buffer, contentType);
   } catch (err) {
     console.error("downloadImage failed:", err);
     return undefined;

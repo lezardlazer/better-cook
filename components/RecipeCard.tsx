@@ -23,6 +23,7 @@ const SOURCE_ICON: Record<string, string> = {
   youtube: "▶️",
   tiktok: "🎵",
   instagram: "📸",
+  manual: "✍️",
 };
 
 export function RecipeCard({
