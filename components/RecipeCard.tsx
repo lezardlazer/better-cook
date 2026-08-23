@@ -9,7 +9,6 @@ interface RecipeCardProps {
   imageUrl?: string | null;
   prepTime?: number | null;
   cookTime?: number | null;
-  sourceType: string;
   tags: string[];
   status: RecipeStatus;
   rating: number | null;
@@ -18,21 +17,12 @@ interface RecipeCardProps {
   colorClass: string;
 }
 
-const SOURCE_ICON: Record<string, string> = {
-  web: "🌐",
-  youtube: "▶️",
-  tiktok: "🎵",
-  instagram: "📸",
-  manual: "✍️",
-};
-
 export function RecipeCard({
   id,
   title,
   imageUrl,
   prepTime,
   cookTime,
-  sourceType,
   tags,
   status,
   rating,
@@ -69,10 +59,7 @@ export function RecipeCard({
           )}
         </div>
         <div className="min-w-0 flex-1 py-0.5">
-          <div className="flex items-center gap-1.5">
-            <span title={sourceType}>{SOURCE_ICON[sourceType] ?? "🌐"}</span>
-            <h2 className="truncate text-lg font-bold">{title}</h2>
-          </div>
+          <h2 className="truncate text-lg font-bold">{title}</h2>
           {totalTime > 0 && (
             <p className="mt-0.5 text-sm font-semibold">⏱ {totalTime} min</p>
           )}
