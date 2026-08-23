@@ -22,7 +22,7 @@ export async function downloadImage(url: string): Promise<string | undefined> {
     const filename = `${crypto.randomUUID()}.${ext}`;
     const buffer = Buffer.from(await response.arrayBuffer());
 
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
+    if (process.env.BLOB_STORE_ID || process.env.BLOB_READ_WRITE_TOKEN) {
       const blob = await put(`recipe-images/${filename}`, buffer, {
         access: "public",
         contentType: contentType || "image/jpeg",
