@@ -33,7 +33,8 @@ export async function downloadImage(url: string): Promise<string | undefined> {
     await mkdir(STORAGE_DIR, { recursive: true });
     await writeFile(path.join(STORAGE_DIR, filename), buffer);
     return `/recipe-images/${filename}`;
-  } catch {
+  } catch (err) {
+    console.error("downloadImage failed:", err);
     return undefined;
   }
 }
