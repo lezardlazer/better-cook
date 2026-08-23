@@ -3,7 +3,9 @@ import { prisma } from "@/lib/db";
 import { BRUTAL_PILL } from "@/lib/ui";
 
 export async function Header() {
-  const cartCount = await prisma.recipe.count({ where: { inCart: true } });
+  const cartCount = await prisma.recipe
+    .count({ where: { inCart: true } })
+    .catch(() => 0);
 
   return (
     <header className="border-b-[3px] border-[#14110F] bg-[#FBF4E6]">
