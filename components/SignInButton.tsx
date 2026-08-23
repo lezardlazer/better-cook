@@ -9,8 +9,12 @@ export function SignInButton() {
         await signIn("google");
       }}
     >
-      <button type="submit" className={`bg-[#FFD53D] px-4 py-2 text-sm ${BRUTAL_PILL}`}>
-        Se connecter avec Google
+      <button
+        type="submit"
+        className={`whitespace-nowrap bg-[#FFD53D] px-3 py-2 text-sm sm:px-4 ${BRUTAL_PILL}`}
+      >
+        <span className="hidden sm:inline">Se connecter avec Google</span>
+        <span className="sm:hidden">Connexion</span>
       </button>
     </form>
   );

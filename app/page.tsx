@@ -44,8 +44,10 @@ export default async function HomePage({
         />
       </form>
 
-      <StatusFilter activeStatus={status} tag={tag} q={q} />
-      <TagFilter activeTag={tag} status={status} q={q} />
+      <div className="flex gap-2">
+        <StatusFilter activeStatus={status} tag={tag} q={q} />
+        <TagFilter activeTag={tag} status={status} q={q} />
+      </div>
 
       {recipes.length === 0 ? (
         <p className="py-10 text-center text-lg font-semibold">

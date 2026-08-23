@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import { ALL_TAG_NAMES } from "@/lib/tags";
-import { BRUTAL_PILL } from "@/lib/ui";
+import { BRUTAL_BORDER, BRUTAL_PILL, BRUTAL_SHADOW } from "@/lib/ui";
 
 export function TagFilter({
   activeTag,
@@ -11,6 +14,8 @@ export function TagFilter({
   status?: string;
   q?: string;
 }) {
+  const [open, setOpen] = useState(false);
+
   function href(tag?: string) {
     const params = new URLSearchParams();
     if (status) params.set("status", status);
@@ -21,26 +26,44 @@ export function TagFilter({
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
-      <Link
-        href={href()}
-        className={`px-3 py-1 text-sm ${BRUTAL_PILL} ${
-          !activeTag ? "bg-[#14110F] text-white" : "bg-white text-[#14110F]"
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={`px-3 py-1.5 text-sm ${BRUTAL_PILL} ${
+          activeTag ? "bg-[#14110F] text-white" : "bg-white text-[#14110F]"
         }`}
       >
-        Tout
-      </Link>
-      {ALL_TAG_NAMES.map((tag) => (
-        <Link
-          key={tag}
-          href={href(tag)}
-          className={`px-3 py-1 text-sm ${BRUTAL_PILL} ${
-            activeTag === tag ? "bg-[#14110F] text-white" : "bg-white text-[#14110F]"
-          }`}
+        {activeTag ? `Filtre : ${activeTag}` : "Filtres"} ▾
+      </button>
+
+      {open && (
+        <div
+          className={`absolute left-0 top-full z-20 mt-2 flex w-72 flex-wrap gap-1.5 rounded-2xl bg-white p-3 ${BRUTAL_BORDER} ${BRUTAL_SHADOW}`}
         >
-          {tag}
-        </Link>
-      ))}
+          <Link
+            href={href()}
+            onClick={() => setOpen(false)}
+            className={`px-3 py-1 text-sm ${BRUTAL_PILL} ${
+              !activeTag ? "bg-[#14110F] text-white" : "bg-white text-[#14110F]"
+            }`}
+          >
+            Tout
+          </Link>
+          {ALL_TAG_NAMES.map((tag) => (
+            <Link
+              key={tag}
+              href={href(tag)}
+              onClick={() => setOpen(false)}
+              className={`px-3 py-1 text-sm ${BRUTAL_PILL} ${
+                activeTag === tag ? "bg-[#14110F] text-white" : "bg-white text-[#14110F]"
+              }`}
+            >
+              {tag}
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
