@@ -6,24 +6,38 @@ import { BRUTAL_BORDER, BRUTAL_PILL, BRUTAL_SHADOW } from "@/lib/ui";
 import { useDropdown } from "./DropdownProvider";
 
 export function TagFilter({
-  activeTag,
+  activeTags,
   status,
   q,
 }: {
-  activeTag?: string;
+  activeTags: string[];
   status?: string;
   q?: string;
 }) {
-  const { isOpen: open, toggle, close } = useDropdown("tag-filter");
+  const { isOpen: open, toggle } = useDropdown("tag-filter");
 
-  function href(tag?: string) {
+  function hrefFor(nextTags: string[]) {
     const params = new URLSearchParams();
     if (status) params.set("status", status);
     if (q) params.set("q", q);
-    if (tag) params.set("tag", tag);
+    if (nextTags.length > 0) params.set("tags", nextTags.join(","));
     const qs = params.toString();
     return qs ? `/?${qs}` : "/";
   }
+
+  function toggleTagHref(tag: string) {
+    const next = activeTags.includes(tag)
+      ? activeTags.filter((t) => t !== tag)
+      : [...activeTags, tag];
+    return hrefFor(next);
+  }
+
+  const label =
+    activeTags.length === 0
+      ? "Filtres"
+      : activeTags.length === 1
+        ? `Filtre : ${activeTags[0]}`
+        : `Filtres (${activeTags.length})`;
 
   return (
     <div className="relative">
@@ -31,10 +45,10 @@ export function TagFilter({
         type="button"
         onClick={toggle}
         className={`px-3 py-1.5 text-sm ${BRUTAL_PILL} ${
-          activeTag ? "bg-[#14110F] text-white" : "bg-white text-[#14110F]"
+          activeTags.length > 0 ? "bg-[#14110F] text-white" : "bg-white text-[#14110F]"
         }`}
       >
-        {activeTag ? `Filtre : ${activeTag}` : "Filtres"} ▾
+        {label} ▾
       </button>
 
       {open && (
@@ -42,10 +56,9 @@ export function TagFilter({
           className={`absolute left-1/2 top-full z-20 mt-2 flex max-h-[70vh] w-[min(20rem,90vw)] -translate-x-1/2 flex-wrap gap-1.5 overflow-y-auto rounded-2xl bg-white p-3 ${BRUTAL_BORDER} ${BRUTAL_SHADOW}`}
         >
           <Link
-            href={href()}
-            onClick={close}
+            href={hrefFor([])}
             className={`px-3 py-1 text-sm ${BRUTAL_PILL} ${
-              !activeTag ? "bg-[#14110F] text-white" : "bg-white text-[#14110F]"
+              activeTags.length === 0 ? "bg-[#14110F] text-white" : "bg-white text-[#14110F]"
             }`}
           >
             Tout
@@ -53,10 +66,9 @@ export function TagFilter({
           {ALL_TAG_NAMES.map((tag) => (
             <Link
               key={tag}
-              href={href(tag)}
-              onClick={close}
+              href={toggleTagHref(tag)}
               className={`px-3 py-1 text-sm ${BRUTAL_PILL} ${
-                activeTag === tag ? "bg-[#14110F] text-white" : "bg-white text-[#14110F]"
+                activeTags.includes(tag) ? "bg-[#14110F] text-white" : "bg-white text-[#14110F]"
               }`}
             >
               {tag}

@@ -10,18 +10,19 @@ import { BRUTAL_BORDER, BRUTAL_PILL } from "@/lib/ui";
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ tag?: string; q?: string; status?: string }>;
+  searchParams: Promise<{ tags?: string; q?: string; status?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) return <SignInGate />;
 
-  const { tag, q, status } = await searchParams;
+  const { tags: tagsParam, q, status } = await searchParams;
+  const activeTags = tagsParam ? tagsParam.split(",").filter(Boolean) : [];
 
   const recipes = await prisma.recipe.findMany({
     where: {
       AND: [
         { userId: session.user.id },
-        tag ? { tags: { some: { tag: { name: tag } } } } : {},
+        ...activeTags.map((tag) => ({ tags: { some: { tag: { name: tag } } } })),
         q ? { title: { contains: q } } : {},
         status === "a_tester" || status === "teste" ? { status } : {},
       ],
@@ -33,7 +34,7 @@ export default async function HomePage({
   return (
     <div className="flex flex-col gap-5">
       <form className="flex gap-2" action="/" method="get">
-        {tag && <input type="hidden" name="tag" value={tag} />}
+        {tagsParam && <input type="hidden" name="tags" value={tagsParam} />}
         {status && <input type="hidden" name="status" value={status} />}
         <input
           type="text"
@@ -45,8 +46,8 @@ export default async function HomePage({
       </form>
 
       <div className="flex gap-2">
-        <StatusFilter activeStatus={status} tag={tag} q={q} />
-        <TagFilter activeTag={tag} status={status} q={q} />
+        <StatusFilter activeStatus={status} tags={activeTags} q={q} />
+        <TagFilter activeTags={activeTags} status={status} q={q} />
       </div>
 
       {recipes.length === 0 ? (

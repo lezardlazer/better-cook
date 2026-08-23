@@ -7,18 +7,18 @@ import { useDropdown } from "./DropdownProvider";
 
 export function StatusFilter({
   activeStatus,
-  tag,
+  tags,
   q,
 }: {
   activeStatus?: string;
-  tag?: string;
+  tags?: string[];
   q?: string;
 }) {
   const { isOpen: open, toggle, close } = useDropdown("status-filter");
 
   function href(status?: RecipeStatus) {
     const params = new URLSearchParams();
-    if (tag) params.set("tag", tag);
+    if (tags && tags.length > 0) params.set("tags", tags.join(","));
     if (q) params.set("q", q);
     if (status) params.set("status", status);
     const qs = params.toString();

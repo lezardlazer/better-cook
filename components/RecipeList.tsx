@@ -60,15 +60,17 @@ export function RecipeList({ recipes }: { recipes: RecipeListItem[] }) {
           </button>
         </div>
       )}
-      {recipes.map((recipe, index) => (
-        <RecipeCard
-          key={recipe.id}
-          {...recipe}
-          selected={selected.has(recipe.id)}
-          onToggleSelect={toggle}
-          colorClass={CARD_COLORS[index % CARD_COLORS.length]}
-        />
-      ))}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {recipes.map((recipe, index) => (
+          <RecipeCard
+            key={recipe.id}
+            {...recipe}
+            selected={selected.has(recipe.id)}
+            onToggleSelect={toggle}
+            colorClass={CARD_COLORS[index % CARD_COLORS.length]}
+          />
+        ))}
+      </div>
     </div>
   );
 }

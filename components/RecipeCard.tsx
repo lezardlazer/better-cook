@@ -31,26 +31,24 @@ export function RecipeCard({
   colorClass,
 }: RecipeCardProps) {
   const totalTime = (prepTime ?? 0) + (cookTime ?? 0);
+  const visibleTags = tags.slice(0, 3);
+  const extraTagCount = tags.length - visibleTags.length;
 
   return (
     <div
-      className={`flex items-stretch gap-3 rounded-3xl p-3 ${colorClass} ${BRUTAL_BORDER} ${BRUTAL_SHADOW}`}
+      className={`relative flex flex-col overflow-hidden rounded-3xl ${colorClass} ${BRUTAL_BORDER} ${BRUTAL_SHADOW}`}
     >
       {onToggleSelect && (
-        <div className="flex flex-none items-start pt-1">
-          <input
-            type="checkbox"
-            checked={selected ?? false}
-            onChange={() => onToggleSelect(id)}
-            className={`h-5 w-5 rounded accent-[#14110F] ${BRUTAL_BORDER}`}
-            aria-label={`Sélectionner ${title}`}
-          />
-        </div>
+        <input
+          type="checkbox"
+          checked={selected ?? false}
+          onChange={() => onToggleSelect(id)}
+          aria-label={`Sélectionner ${title}`}
+          className={`absolute left-2 top-2 z-10 h-5 w-5 rounded bg-white accent-[#14110F] ${BRUTAL_BORDER}`}
+        />
       )}
-      <Link href={`/recipes/${id}`} className="flex min-w-0 flex-1 gap-3">
-        <div
-          className={`flex h-24 w-24 flex-none items-center justify-center overflow-hidden rounded-2xl bg-white text-3xl ${BRUTAL_BORDER}`}
-        >
+      <Link href={`/recipes/${id}`} className="flex flex-col">
+        <div className="flex aspect-square w-full items-center justify-center overflow-hidden border-b-[2px] border-[#14110F] bg-white text-4xl">
           {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={imageUrl} alt="" className="h-full w-full object-cover" />
@@ -58,29 +56,34 @@ export function RecipeCard({
             "🍽️"
           )}
         </div>
-        <div className="min-w-0 flex-1 py-0.5">
-          <h2 className="truncate text-lg font-bold">{title}</h2>
-          {totalTime > 0 && (
-            <p className="mt-0.5 text-sm font-semibold">⏱ {totalTime} min</p>
-          )}
-          <div className="mt-1.5 flex items-center gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-1 p-2.5">
+          <h2 className="line-clamp-2 text-sm font-bold leading-tight">{title}</h2>
+          {totalTime > 0 && <p className="text-xs font-semibold">⏱ {totalTime} min</p>}
+          <div className="flex flex-wrap items-center gap-1">
             <span
-              className={`rounded-full bg-white px-2 py-0.5 text-xs font-bold ${BRUTAL_BORDER}`}
+              className={`rounded-full bg-white px-1.5 py-0.5 text-[10px] font-bold ${BRUTAL_BORDER}`}
             >
               {STATUS_LABELS[status]}
             </span>
             {status === "teste" && <StarRating value={rating} readOnly />}
           </div>
-          <div className="mt-1.5 flex flex-wrap gap-1">
-            {tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full bg-white/70 px-2 py-0.5 text-xs font-semibold"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+          {visibleTags.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {visibleTags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full bg-white/70 px-1.5 py-0.5 text-[10px] font-semibold"
+                >
+                  {tag}
+                </span>
+              ))}
+              {extraTagCount > 0 && (
+                <span className="rounded-full bg-white/70 px-1.5 py-0.5 text-[10px] font-semibold">
+                  +{extraTagCount}
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </Link>
     </div>
