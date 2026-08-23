@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -39,3 +39,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/app/generated/prisma
+
+# local sqlite database
+*.db
+*.db-journal
+
+# locally downloaded recipe cover images
+/public/recipe-images/
+
+# one-off local data export (contains personal recipe data)
+/scripts/sqlite-export.json
+
+# auto-installed AI tooling skill docs (not part of the app)
+/.agents/
+/.windsurf/
+/.claude/skills/
+/skills-lock.json

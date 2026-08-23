@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SourceType {
+  web
+  youtube
+  tiktok
+  instagram
+}
+
+enum TagCategory {
+  type_plat
+  regime
+  style
+}
+
+enum RecipeStatus {
+  a_tester
+  teste
+}
+
+model Recipe {
+  id          String       @id @default(cuid())
+  title       String
+  sourceUrl   String
+  sourceType  SourceType
+  imageUrl    String?
+  prepTime    Int?
+  cookTime    Int?
+  servings    Int?
+  rawExtract  String?
+  status      RecipeStatus @default(a_tester)
+  rating      Int?
+  inCart      Boolean      @default(false)
+  ingredients Ingredient[]
+  steps       Step[]
+  tags        RecipeTag[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Ingredient {
+  id       String @id @default(cuid())
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId String
+  text     String
+  position Int
+}
+
+model Step {
+  id       String @id @default(cuid())
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId String
+  text     String
+  position Int
+}
+
+model Tag {
+  id       String      @id @default(cuid())
+  name     String      @unique
+  category TagCategory
+  recipes  RecipeTag[]
+}
+
+model RecipeTag {
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId String
+  tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId    String
+
+  @@id([recipeId, tagId])
+}
