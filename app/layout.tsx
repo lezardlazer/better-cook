@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk } from "next/font/google";
 import { Header } from "@/components/Header";
+import { DropdownProvider } from "@/components/DropdownProvider";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -34,10 +35,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="fr" className={`${spaceGrotesk.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-[#FBF4E6] font-sans text-[#14110F]">
-        <Header />
-        <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
-          {children}
-        </main>
+        <DropdownProvider>
+          <Header />
+          <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">
+            {children}
+          </main>
+        </DropdownProvider>
       </body>
     </html>
   );

@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { BRUTAL_BORDER, BRUTAL_PILL, BRUTAL_SHADOW } from "@/lib/ui";
+import { useDropdown } from "./DropdownProvider";
 
 export function HeaderNav({
   signedIn,
@@ -13,7 +14,7 @@ export function HeaderNav({
   cartCount: number;
   authSlot: ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
+  const { isOpen: open, toggle, close } = useDropdown("header-nav");
 
   if (!signedIn) {
     return <div className="flex-none">{authSlot}</div>;
@@ -42,7 +43,7 @@ export function HeaderNav({
       <div className="relative sm:hidden">
         <button
           type="button"
-          onClick={() => setOpen((o) => !o)}
+          onClick={toggle}
           aria-label="Menu"
           className={`relative flex h-10 w-10 flex-none items-center justify-center bg-white text-lg ${BRUTAL_PILL}`}
         >
@@ -60,7 +61,7 @@ export function HeaderNav({
           >
             <Link
               href="/panier"
-              onClick={() => setOpen(false)}
+              onClick={close}
               className={`flex items-center justify-between bg-[#9FD8F5] px-4 py-2 text-sm ${BRUTAL_PILL}`}
             >
               🛒 Panier
@@ -72,12 +73,12 @@ export function HeaderNav({
             </Link>
             <Link
               href="/recipes/new"
-              onClick={() => setOpen(false)}
+              onClick={close}
               className={`bg-[#FFD53D] px-4 py-2 text-center text-sm ${BRUTAL_PILL}`}
             >
               + Ajouter
             </Link>
-            <div onClick={() => setOpen(false)}>{authSlot}</div>
+            <div onClick={close}>{authSlot}</div>
           </div>
         )}
       </div>

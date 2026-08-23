@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { STATUS_LABELS, RecipeStatus } from "@/lib/status";
 import { BRUTAL_BORDER, BRUTAL_PILL, BRUTAL_SHADOW } from "@/lib/ui";
+import { useDropdown } from "./DropdownProvider";
 
 export function StatusFilter({
   activeStatus,
@@ -14,7 +14,7 @@ export function StatusFilter({
   tag?: string;
   q?: string;
 }) {
-  const [open, setOpen] = useState(false);
+  const { isOpen: open, toggle, close } = useDropdown("status-filter");
 
   function href(status?: RecipeStatus) {
     const params = new URLSearchParams();
@@ -37,7 +37,7 @@ export function StatusFilter({
     <div className="relative">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggle}
         className={`px-3 py-1.5 text-sm ${BRUTAL_PILL} ${
           activeStatus ? "bg-[#FFD53D] text-[#14110F]" : "bg-white text-[#14110F]"
         }`}
@@ -53,7 +53,7 @@ export function StatusFilter({
             <Link
               key={opt.label}
               href={href(opt.value)}
-              onClick={() => setOpen(false)}
+              onClick={close}
               className={`px-3 py-1 text-sm ${BRUTAL_PILL} ${
                 activeStatus === opt.value || (!activeStatus && !opt.value)
                   ? "bg-[#FFD53D] text-[#14110F]"

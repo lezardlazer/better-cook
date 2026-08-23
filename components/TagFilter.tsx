@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { ALL_TAG_NAMES } from "@/lib/tags";
 import { BRUTAL_BORDER, BRUTAL_PILL, BRUTAL_SHADOW } from "@/lib/ui";
+import { useDropdown } from "./DropdownProvider";
 
 export function TagFilter({
   activeTag,
@@ -14,7 +14,7 @@ export function TagFilter({
   status?: string;
   q?: string;
 }) {
-  const [open, setOpen] = useState(false);
+  const { isOpen: open, toggle, close } = useDropdown("tag-filter");
 
   function href(tag?: string) {
     const params = new URLSearchParams();
@@ -29,7 +29,7 @@ export function TagFilter({
     <div className="relative">
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggle}
         className={`px-3 py-1.5 text-sm ${BRUTAL_PILL} ${
           activeTag ? "bg-[#14110F] text-white" : "bg-white text-[#14110F]"
         }`}
@@ -39,11 +39,11 @@ export function TagFilter({
 
       {open && (
         <div
-          className={`absolute left-0 top-full z-20 mt-2 flex w-72 flex-wrap gap-1.5 rounded-2xl bg-white p-3 ${BRUTAL_BORDER} ${BRUTAL_SHADOW}`}
+          className={`absolute left-1/2 top-full z-20 mt-2 flex max-h-[70vh] w-[min(20rem,90vw)] -translate-x-1/2 flex-wrap gap-1.5 overflow-y-auto rounded-2xl bg-white p-3 ${BRUTAL_BORDER} ${BRUTAL_SHADOW}`}
         >
           <Link
             href={href()}
-            onClick={() => setOpen(false)}
+            onClick={close}
             className={`px-3 py-1 text-sm ${BRUTAL_PILL} ${
               !activeTag ? "bg-[#14110F] text-white" : "bg-white text-[#14110F]"
             }`}
@@ -54,7 +54,7 @@ export function TagFilter({
             <Link
               key={tag}
               href={href(tag)}
-              onClick={() => setOpen(false)}
+              onClick={close}
               className={`px-3 py-1 text-sm ${BRUTAL_PILL} ${
                 activeTag === tag ? "bg-[#14110F] text-white" : "bg-white text-[#14110F]"
               }`}
