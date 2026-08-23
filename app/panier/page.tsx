@@ -1,13 +1,18 @@
 import Link from "next/link";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { consolidateShoppingList } from "@/lib/shoppingList";
 import { ClearCartButton } from "@/components/ClearCartButton";
 import { CartToggleButton } from "@/components/CartToggleButton";
+import { SignInGate } from "@/components/SignInGate";
 import { BRUTAL_BORDER, BRUTAL_PILL, BRUTAL_SHADOW } from "@/lib/ui";
 
 export default async function CartPage() {
+  const session = await auth();
+  if (!session?.user?.id) return <SignInGate />;
+
   const recipes = await prisma.recipe.findMany({
-    where: { inCart: true },
+    where: { inCart: true, userId: session.user.id },
     include: { ingredients: { orderBy: { position: "asc" } } },
     orderBy: { createdAt: "desc" },
   });

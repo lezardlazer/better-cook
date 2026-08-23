@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
+  }
+
   const body = await req.json().catch(() => null);
   const ids: string[] = Array.isArray(body?.ids)
     ? body.ids.filter((id: unknown) => typeof id === "string")
@@ -13,7 +19,7 @@ export async function POST(req: NextRequest) {
   }
 
   await prisma.recipe.updateMany({
-    where: { id: { in: ids } },
+    where: { id: { in: ids }, userId: session.user.id },
     data: { inCart },
   });
 
@@ -21,9 +27,15 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
+  }
+
   await prisma.recipe.updateMany({
-    where: { inCart: true },
+    where: { inCart: true, userId: session.user.id },
     data: { inCart: false },
   });
+
   return NextResponse.json({ ok: true });
 }

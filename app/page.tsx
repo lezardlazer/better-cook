@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { TagFilter } from "@/components/TagFilter";
 import { StatusFilter } from "@/components/StatusFilter";
 import { RecipeList } from "@/components/RecipeList";
+import { SignInGate } from "@/components/SignInGate";
 import { BRUTAL_BORDER, BRUTAL_PILL } from "@/lib/ui";
 
 export default async function HomePage({
@@ -10,11 +12,15 @@ export default async function HomePage({
 }: {
   searchParams: Promise<{ tag?: string; q?: string; status?: string }>;
 }) {
+  const session = await auth();
+  if (!session?.user?.id) return <SignInGate />;
+
   const { tag, q, status } = await searchParams;
 
   const recipes = await prisma.recipe.findMany({
     where: {
       AND: [
+        { userId: session.user.id },
         tag ? { tags: { some: { tag: { name: tag } } } } : {},
         q ? { title: { contains: q } } : {},
         status === "a_tester" || status === "teste" ? { status } : {},

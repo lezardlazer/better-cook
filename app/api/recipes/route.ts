@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { categoryForTag } from "@/lib/tags";
 
@@ -9,6 +10,11 @@ const recipeWithRelations = {
 };
 
 export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const tag = searchParams.get("tag");
   const q = searchParams.get("q");
@@ -16,6 +22,7 @@ export async function GET(req: NextRequest) {
   const recipes = await prisma.recipe.findMany({
     where: {
       AND: [
+        { userId: session.user.id },
         tag ? { tags: { some: { tag: { name: tag } } } } : {},
         q ? { title: { contains: q } } : {},
       ],
@@ -28,6 +35,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
+  }
+
   const body = await req.json().catch(() => null);
   if (!body || typeof body.title !== "string" || !body.title.trim()) {
     return NextResponse.json({ error: "Titre manquant." }, { status: 400 });
@@ -45,6 +57,7 @@ export async function POST(req: NextRequest) {
 
   const recipe = await prisma.recipe.create({
     data: {
+      userId: session.user.id,
       title: body.title.trim(),
       sourceUrl: body.sourceUrl ?? "",
       sourceType: body.sourceType ?? "web",

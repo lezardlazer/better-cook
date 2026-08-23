@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { DeleteRecipeButton } from "@/components/DeleteRecipeButton";
 import { RecipeStatusControl } from "@/components/RecipeStatusControl";
 import { CartToggleButton } from "@/components/CartToggleButton";
+import { SignInGate } from "@/components/SignInGate";
 import { BRUTAL_BORDER, BRUTAL_SHADOW } from "@/lib/ui";
 
 export default async function RecipeDetailPage({
@@ -10,10 +12,13 @@ export default async function RecipeDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const session = await auth();
+  if (!session?.user?.id) return <SignInGate />;
+
   const { id } = await params;
 
-  const recipe = await prisma.recipe.findUnique({
-    where: { id },
+  const recipe = await prisma.recipe.findFirst({
+    where: { id, userId: session.user.id },
     include: {
       ingredients: { orderBy: { position: "asc" } },
       steps: { orderBy: { position: "asc" } },

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { deleteRecipeImage } from "@/lib/images";
 
@@ -12,9 +13,14 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
+  }
+
   const { id } = await params;
-  const recipe = await prisma.recipe.findUnique({
-    where: { id },
+  const recipe = await prisma.recipe.findFirst({
+    where: { id, userId: session.user.id },
     include: recipeWithRelations,
   });
   if (!recipe) {
@@ -27,6 +33,11 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
+  }
+
   const { id } = await params;
   const body = await req.json().catch(() => null);
   if (!body) {
@@ -64,13 +75,19 @@ export async function PATCH(
     data.inCart = body.inCart;
   }
 
-  const recipe = await prisma.recipe
-    .update({ where: { id }, data, include: recipeWithRelations })
-    .catch(() => null);
+  const { count } = await prisma.recipe.updateMany({
+    where: { id, userId: session.user.id },
+    data,
+  });
 
-  if (!recipe) {
+  if (count === 0) {
     return NextResponse.json({ error: "Recette introuvable." }, { status: 404 });
   }
+
+  const recipe = await prisma.recipe.findUnique({
+    where: { id },
+    include: recipeWithRelations,
+  });
 
   return NextResponse.json(recipe);
 }
@@ -79,8 +96,20 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
+  }
+
   const { id } = await params;
-  const deleted = await prisma.recipe.delete({ where: { id } }).catch(() => null);
-  if (deleted) await deleteRecipeImage(deleted.imageUrl);
+  const recipe = await prisma.recipe.findFirst({
+    where: { id, userId: session.user.id },
+  });
+  if (!recipe) {
+    return NextResponse.json({ error: "Recette introuvable." }, { status: 404 });
+  }
+
+  await prisma.recipe.delete({ where: { id } });
+  await deleteRecipeImage(recipe.imageUrl);
   return NextResponse.json({ ok: true });
 }
