@@ -1,4 +1,4 @@
-import { JSDOM } from "jsdom";
+import { parseHTML } from "linkedom";
 import { Readability } from "@mozilla/readability";
 
 export interface WebExtractResult {
@@ -41,8 +41,8 @@ function findRecipeNode(node: unknown): Record<string, unknown> | null {
   return null;
 }
 
-function extractJsonLdRecipe(dom: JSDOM): WebExtractResult | null {
-  const scripts = dom.window.document.querySelectorAll(
+function extractJsonLdRecipe(document: Document): WebExtractResult | null {
+  const scripts = document.querySelectorAll(
     'script[type="application/ld+json"]',
   );
 
@@ -108,12 +108,12 @@ export async function extractWebRecipe(url: string): Promise<WebExtractResult> {
     throw new Error(`Impossible de récupérer la page (HTTP ${response.status})`);
   }
   const html = await response.text();
-  const dom = new JSDOM(html, { url });
+  const { document } = parseHTML(html, { location: { href: url } });
 
-  const jsonLd = extractJsonLdRecipe(dom);
+  const jsonLd = extractJsonLdRecipe(document);
   if (jsonLd) return jsonLd;
 
-  const article = new Readability(dom.window.document).parse();
+  const article = new Readability(document).parse();
   if (!article?.textContent) {
     throw new Error("Impossible d'extraire le contenu de la page.");
   }
