@@ -3,25 +3,29 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { TagFilter } from "@/components/TagFilter";
 import { StatusFilter } from "@/components/StatusFilter";
+import { TypeTabs } from "@/components/TypeTabs";
 import { RecipeList } from "@/components/RecipeList";
 import { SignInGate } from "@/components/SignInGate";
 import { BRUTAL_BORDER, BRUTAL_PILL } from "@/lib/ui";
+import { DISH_TYPE_TAG, parseDishType } from "@/lib/tags";
 
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ tags?: string; q?: string; status?: string }>;
+  searchParams: Promise<{ tags?: string; q?: string; status?: string; type?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) return <SignInGate />;
 
-  const { tags: tagsParam, q, status } = await searchParams;
+  const { tags: tagsParam, q, status, type: typeParam } = await searchParams;
   const activeTags = tagsParam ? tagsParam.split(",").filter(Boolean) : [];
+  const activeType = parseDishType(typeParam);
 
   const recipes = await prisma.recipe.findMany({
     where: {
       AND: [
         { userId: session.user.id },
+        { tags: { some: { tag: { name: DISH_TYPE_TAG[activeType] } } } },
         ...activeTags.map((tag) => ({ tags: { some: { tag: { name: tag } } } })),
         q ? { title: { contains: q } } : {},
         status === "a_tester" || status === "teste" ? { status } : {},
@@ -34,6 +38,7 @@ export default async function HomePage({
   return (
     <div className="flex flex-col gap-5">
       <form className="flex gap-2" action="/" method="get">
+        {activeType !== "plat" && <input type="hidden" name="type" value={activeType} />}
         {tagsParam && <input type="hidden" name="tags" value={tagsParam} />}
         {status && <input type="hidden" name="status" value={status} />}
         <input
@@ -45,9 +50,11 @@ export default async function HomePage({
         />
       </form>
 
+      <TypeTabs activeType={activeType} tags={activeTags} q={q} status={status} />
+
       <div className="flex gap-2">
-        <StatusFilter activeStatus={status} tags={activeTags} q={q} />
-        <TagFilter activeTags={activeTags} status={status} q={q} />
+        <StatusFilter activeStatus={status} tags={activeTags} q={q} type={activeType} />
+        <TagFilter activeTags={activeTags} status={status} q={q} type={activeType} />
       </div>
 
       {recipes.length === 0 ? (

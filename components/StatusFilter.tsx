@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { STATUS_LABELS, RecipeStatus } from "@/lib/status";
+import { type DishType } from "@/lib/tags";
 import { BRUTAL_BORDER, BRUTAL_PILL, BRUTAL_SHADOW } from "@/lib/ui";
 import { useDropdown } from "./DropdownProvider";
 
@@ -9,15 +10,18 @@ export function StatusFilter({
   activeStatus,
   tags,
   q,
+  type,
 }: {
   activeStatus?: string;
   tags?: string[];
   q?: string;
+  type: DishType;
 }) {
   const { isOpen: open, toggle, close } = useDropdown("status-filter");
 
   function href(status?: RecipeStatus) {
     const params = new URLSearchParams();
+    if (type !== "plat") params.set("type", type);
     if (tags && tags.length > 0) params.set("tags", tags.join(","));
     if (q) params.set("q", q);
     if (status) params.set("status", status);

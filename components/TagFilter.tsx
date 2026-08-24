@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ALL_TAG_NAMES } from "@/lib/tags";
+import { FILTERABLE_TAG_NAMES, type DishType } from "@/lib/tags";
 import { BRUTAL_BORDER, BRUTAL_PILL, BRUTAL_SHADOW } from "@/lib/ui";
 import { useDropdown } from "./DropdownProvider";
 
@@ -9,15 +9,18 @@ export function TagFilter({
   activeTags,
   status,
   q,
+  type,
 }: {
   activeTags: string[];
   status?: string;
   q?: string;
+  type: DishType;
 }) {
   const { isOpen: open, toggle } = useDropdown("tag-filter");
 
   function hrefFor(nextTags: string[]) {
     const params = new URLSearchParams();
+    if (type !== "plat") params.set("type", type);
     if (status) params.set("status", status);
     if (q) params.set("q", q);
     if (nextTags.length > 0) params.set("tags", nextTags.join(","));
@@ -63,7 +66,7 @@ export function TagFilter({
           >
             Tout
           </Link>
-          {ALL_TAG_NAMES.map((tag) => (
+          {FILTERABLE_TAG_NAMES.map((tag) => (
             <Link
               key={tag}
               href={toggleTagHref(tag)}
