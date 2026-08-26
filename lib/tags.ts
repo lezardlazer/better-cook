@@ -1,7 +1,7 @@
 export type TagCategory = "type_plat" | "regime" | "style";
 
 export const TAG_TAXONOMY: Record<TagCategory, string[]> = {
-  type_plat: ["Entrée", "Plat", "Dessert", "Snack", "Boisson"],
+  type_plat: ["Plat", "Dessert", "Snack", "Boisson"],
   regime: ["Healthy", "Protéinée", "Végé", "Vegan", "Léger"],
   style: ["Gourmande", "Rapide", "Économique", "Confort food"],
 };
