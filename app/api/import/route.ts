@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
       }
     }
   } catch (err) {
+    console.error("Échec de l'extraction du contenu source:", err);
     if (sourceType !== "web" && !manualCaption) {
       return NextResponse.json(
         {
