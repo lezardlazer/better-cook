@@ -23,6 +23,27 @@ Dans les variables d'environnement Vercel de l'app principale, ajoute :
 
 Sans ces variables, l'app principale utilise `yt-dlp` en local (comportement de développement).
 
+## Cookies (contourner les blocages anti-bot)
+
+TikTok et Instagram bloquent de plus en plus souvent les requêtes venant d'IP de datacenter
+(Railway, Render, etc.), même avec la dernière version de yt-dlp. Fournir des cookies d'une
+session connectée réduit fortement ces blocages.
+
+1. Connecte-toi à TikTok (et/ou Instagram) dans ton navigateur habituel.
+2. Exporte les cookies au format Netscape avec une extension comme
+   [Get cookies.txt LOCALLY](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
+   (exporte depuis un onglet ouvert sur tiktok.com, éventuellement aussi instagram.com dans le
+   même fichier).
+3. Dans les variables d'environnement du service (Render/Railway/...), ajoute :
+   - `YTDLP_COOKIES` = le contenu complet du fichier `cookies.txt` exporté (colle tout le texte,
+     multi-lignes). Marque-la comme secret/sensible.
+4. Redéploie le service. Au démarrage, il écrit ce contenu dans un fichier temporaire et l'utilise
+   automatiquement (`--cookies`) pour tous les appels à yt-dlp.
+
+⚠️ Ces cookies donnent accès à ta session connectée — ne les partage jamais et régénère-les
+(déconnexion/reconnexion) si tu penses qu'ils ont fuité. Ils expirent périodiquement et devront
+être régénérés de temps en temps.
+
 ## Test local
 
 ```bash
