@@ -30,7 +30,13 @@ app.post("/metadata", async (req, res) => {
     return res.status(400).json({ error: "Missing url" });
   }
 
-  const args = ["--dump-json", "--no-warnings", "--skip-download"];
+  const args = [
+    "--dump-json",
+    "--no-warnings",
+    "--skip-download",
+    "--user-agent",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+  ];
   if (existsSync(COOKIES_PATH)) {
     args.push("--cookies", COOKIES_PATH);
   }
