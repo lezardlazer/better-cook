@@ -38,6 +38,7 @@ model Recipe {
   rawExtract  String?
   status      RecipeStatus @default(a_tester)
   rating      Int?
+  testNote    String?
   inCart      Boolean      @default(false)
   ingredients Ingredient[]
   steps       Step[]

@@ -47,7 +47,12 @@ export default async function RecipeDetailPage({
         </div>
       </div>
 
-      <RecipeStatusControl id={recipe.id} status={recipe.status} rating={recipe.rating} />
+      <RecipeStatusControl
+        id={recipe.id}
+        status={recipe.status}
+        rating={recipe.rating}
+        testNote={recipe.testNote}
+      />
 
       <div className="flex flex-wrap gap-1.5">
         {recipe.tags.map(({ tag }) => (

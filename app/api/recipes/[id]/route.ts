@@ -47,6 +47,7 @@ export async function PATCH(
   const data: {
     status?: "a_tester" | "teste";
     rating?: number | null;
+    testNote?: string | null;
     inCart?: boolean;
   } = {};
 
@@ -55,7 +56,10 @@ export async function PATCH(
       return NextResponse.json({ error: "Statut invalide." }, { status: 400 });
     }
     data.status = body.status;
-    if (body.status === "a_tester") data.rating = null;
+    if (body.status === "a_tester") {
+      data.rating = null;
+      data.testNote = null;
+    }
   }
 
   if (body.rating !== undefined) {
@@ -66,6 +70,13 @@ export async function PATCH(
       );
     }
     data.rating = body.rating;
+  }
+
+  if (body.testNote !== undefined) {
+    if (body.testNote !== null && typeof body.testNote !== "string") {
+      return NextResponse.json({ error: "Le commentaire est invalide." }, { status: 400 });
+    }
+    data.testNote = body.testNote;
   }
 
   if (body.inCart !== undefined) {
