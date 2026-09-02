@@ -13,12 +13,27 @@ interface RecipeStatusControlProps {
   testNote: string | null;
 }
 
-export function RecipeStatusControl({ id, status, rating, testNote }: RecipeStatusControlProps) {
+export function RecipeStatusControl({
+  id,
+  status: initialStatus,
+  rating: initialRating,
+  testNote,
+}: RecipeStatusControlProps) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
+  const [status, setStatus] = useState(initialStatus);
+  const [rating, setRating] = useState(initialRating);
   const [note, setNote] = useState(testNote ?? "");
 
   async function patch(data: { status?: RecipeStatus; rating?: number | null; testNote?: string | null }) {
+    if (data.status !== undefined) {
+      setStatus(data.status);
+      if (data.status === "a_tester") {
+        setRating(null);
+        setNote("");
+      }
+    }
+    if (data.rating !== undefined) setRating(data.rating);
     setPending(true);
     await fetch(`/api/recipes/${id}`, {
       method: "PATCH",

@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       AND: [
         { userId: session.user.id },
         tag ? { tags: { some: { tag: { name: tag } } } } : {},
-        q ? { title: { contains: q } } : {},
+        q ? { title: { contains: q, mode: "insensitive" } } : {},
       ],
     },
     include: recipeWithRelations,

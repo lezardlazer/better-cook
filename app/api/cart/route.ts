@@ -32,10 +32,13 @@ export async function DELETE() {
     return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
   }
 
-  await prisma.recipe.updateMany({
-    where: { inCart: true, userId: session.user.id },
-    data: { inCart: false },
-  });
+  await prisma.$transaction([
+    prisma.recipe.updateMany({
+      where: { inCart: true, userId: session.user.id },
+      data: { inCart: false },
+    }),
+    prisma.cartCheckedItem.deleteMany({ where: { userId: session.user.id } }),
+  ]);
 
   return NextResponse.json({ ok: true });
 }

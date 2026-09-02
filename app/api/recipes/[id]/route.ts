@@ -63,9 +63,15 @@ export async function PATCH(
   }
 
   if (body.rating !== undefined) {
-    if (body.rating !== null && (!Number.isInteger(body.rating) || body.rating < 1 || body.rating > 5)) {
+    if (
+      body.rating !== null &&
+      (typeof body.rating !== "number" ||
+        !Number.isInteger(body.rating * 2) ||
+        body.rating < 0.5 ||
+        body.rating > 5)
+    ) {
       return NextResponse.json(
-        { error: "La note doit être un entier entre 1 et 5." },
+        { error: "La note doit être un multiple de 0,5 entre 0,5 et 5." },
         { status: 400 },
       );
     }

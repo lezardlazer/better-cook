@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { consolidateShoppingList } from "@/lib/shoppingList";
 import { ClearCartButton } from "@/components/ClearCartButton";
 import { CartToggleButton } from "@/components/CartToggleButton";
+import { CartItem } from "@/components/CartItem";
 import { SignInGate } from "@/components/SignInGate";
 import { BRUTAL_BORDER, BRUTAL_PILL, BRUTAL_SHADOW } from "@/lib/ui";
 
@@ -44,6 +45,11 @@ export default async function CartPage() {
     error = "Échec de la consolidation par l'IA — voici les ingrédients par recette.";
   }
 
+  const checkedItems = await prisma.cartCheckedItem.findMany({
+    where: { userId: session.user.id },
+  });
+  const checkedTexts = new Set(checkedItems.map((c) => c.text));
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -57,25 +63,13 @@ export default async function CartPage() {
         {shoppingList.length > 0 ? (
           <ul className="flex flex-col gap-2">
             {shoppingList.map((item, idx) => (
-              <li
-                key={idx}
-                className={`flex items-center gap-3 rounded-xl bg-white px-3 py-2 ${BRUTAL_BORDER}`}
-              >
-                <input type="checkbox" className={`h-5 w-5 rounded accent-[#14110F] ${BRUTAL_BORDER}`} />
-                <span className="font-medium">{item}</span>
-              </li>
+              <CartItem key={idx} text={item} checked={checkedTexts.has(item)} />
             ))}
           </ul>
         ) : (
           <ul className="flex flex-col gap-2">
             {recipes.flatMap((r) => r.ingredients).map((ing) => (
-              <li
-                key={ing.id}
-                className={`flex items-center gap-3 rounded-xl bg-white px-3 py-2 ${BRUTAL_BORDER}`}
-              >
-                <input type="checkbox" className={`h-5 w-5 rounded accent-[#14110F] ${BRUTAL_BORDER}`} />
-                <span className="font-medium">{ing.text}</span>
-              </li>
+              <CartItem key={ing.id} text={ing.text} checked={checkedTexts.has(ing.text)} />
             ))}
           </ul>
         )}

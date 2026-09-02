@@ -6,7 +6,8 @@ import { StatusFilter } from "@/components/StatusFilter";
 import { TypeTabs } from "@/components/TypeTabs";
 import { RecipeList } from "@/components/RecipeList";
 import { SignInGate } from "@/components/SignInGate";
-import { BRUTAL_BORDER, BRUTAL_PILL } from "@/lib/ui";
+import { SearchBox } from "@/components/SearchBox";
+import { BRUTAL_PILL } from "@/lib/ui";
 import { DISH_TYPE_TAG, parseDishType } from "@/lib/tags";
 
 export default async function HomePage({
@@ -27,7 +28,7 @@ export default async function HomePage({
         { userId: session.user.id },
         { tags: { some: { tag: { name: DISH_TYPE_TAG[activeType] } } } },
         ...activeTags.map((tag) => ({ tags: { some: { tag: { name: tag } } } })),
-        q ? { title: { contains: q } } : {},
+        q ? { title: { contains: q, mode: "insensitive" } } : {},
         status === "a_tester" || status === "teste" ? { status } : {},
       ],
     },
@@ -37,18 +38,7 @@ export default async function HomePage({
 
   return (
     <div className="flex flex-col gap-5">
-      <form className="flex gap-2" action="/" method="get">
-        {activeType !== "plat" && <input type="hidden" name="type" value={activeType} />}
-        {tagsParam && <input type="hidden" name="tags" value={tagsParam} />}
-        {status && <input type="hidden" name="status" value={status} />}
-        <input
-          type="text"
-          name="q"
-          defaultValue={q ?? ""}
-          placeholder="Rechercher une recette…"
-          className={`w-full rounded-2xl bg-white px-4 py-2.5 text-sm font-medium placeholder:text-[#14110F]/50 focus:outline-none ${BRUTAL_BORDER}`}
-        />
-      </form>
+      <SearchBox q={q} />
 
       <TypeTabs activeType={activeType} tags={activeTags} q={q} status={status} />
 

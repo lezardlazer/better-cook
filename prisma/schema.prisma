@@ -37,7 +37,7 @@ model Recipe {
   servings    Int?
   rawExtract  String?
   status      RecipeStatus @default(a_tester)
-  rating      Int?
+  rating      Float?
   testNote    String?
   inCart      Boolean      @default(false)
   ingredients Ingredient[]
@@ -55,6 +55,15 @@ model Ingredient {
   recipeId String
   text     String
   position Int
+}
+
+model CartCheckedItem {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  text   String
+
+  @@unique([userId, text])
 }
 
 model Step {
@@ -82,14 +91,15 @@ model RecipeTag {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  recipes       Recipe[]
+  id               String            @id @default(cuid())
+  name             String?
+  email            String?           @unique
+  emailVerified    DateTime?
+  image            String?
+  accounts         Account[]
+  sessions         Session[]
+  recipes          Recipe[]
+  cartCheckedItems CartCheckedItem[]
 }
 
 model Account {
